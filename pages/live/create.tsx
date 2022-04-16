@@ -8,9 +8,9 @@ const Create: NextPage = () => {
   return (
     <Layout canGoBack title="Go Live">
       <form className=" space-y-4 py-10 px-4">
-        <Input requird label="Name" name="name" type="text" />
+        <Input required label="Name" name="name" type="text" />
         <Input
-          requird
+          required
           label="Price"
           name="price"
           placeholder="0.00"

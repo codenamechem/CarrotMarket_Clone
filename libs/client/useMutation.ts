@@ -5,9 +5,7 @@ interface UseMutationState {
   data?: object;
   error?: object;
 }
-
 type UseMutationResult = [(data: any) => void, UseMutationState];
-//Type설정
 
 export default function useMutation(url: string): UseMutationResult {
   //   const [loading, setLoading] = useState(false);
@@ -17,26 +15,24 @@ export default function useMutation(url: string): UseMutationResult {
   //   return [mutation, { loading, data, error }];
   //    useState 하나로 줄여서 쓰기 가능
 
-  const [state, setState] = useState<UseMutationState>({
+  const [state, setSate] = useState<UseMutationState>({
     loading: false,
     data: undefined,
     error: undefined,
   });
-
   function mutation(data: any) {
-    setState((prev) => ({ ...prev, loading: true }));
-
+    setSate((prev) => ({ ...prev, loading: true }));
     fetch(url, {
       method: "POST",
       headers: {
-        "content-Type": "application/json", //headers 필수로 적어줘야함
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(data), //String 만 받음
+      body: JSON.stringify(data),
     })
-      .then((response) => response.json().catch(() => {})) //json이 없으면 반환
-      .then((data) => setState((prev) => ({ ...prev, data })))
-      .catch((error) => setState((prev) => ({ ...prev, error })))
-      .finally(() => setState((prev) => ({ ...prev, loading: false })));
+      .then((response) => response.json().catch(() => {}))
+      .then((data) => setSate((prev) => ({ ...prev, data })))
+      .catch((error) => setSate((prev) => ({ ...prev, error })))
+      .finally(() => setSate((prev) => ({ ...prev, loading: false })));
   }
   return [mutation, { ...state }];
 }

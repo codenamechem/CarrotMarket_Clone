@@ -5,7 +5,7 @@ interface InputProps {
   name: string;
   kind?: "text" | "phone" | "price";
   type: string;
-  register: UseFormRegisterReturn;
+  register: UseFormRegisterReturn; //register type
   required: boolean;
 }
 
@@ -13,7 +13,7 @@ export default function Input({
   label,
   name,
   kind = "text",
-  register,
+  register, //register에는 여러가지 것들이 들어간다.
   type,
   required,
 }: InputProps) {
@@ -30,7 +30,7 @@ export default function Input({
           <input
             id={name}
             required={required}
-            {...register}
+            {...register} // ...으로 사용
             type={type}
             className="w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-orange-500 focus:outline-none focus:ring-orange-500"
           />

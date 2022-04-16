@@ -34,7 +34,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
 front : npm run dev
-prisma : npx prisma studio
 pscale : pscale connect carrotmarket_clone
+prisma : npx prisma studio
 
 database change : npx prisma db push

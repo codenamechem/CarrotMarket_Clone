@@ -7,8 +7,8 @@ export default async function handler(
 ) {
   await client.user.create({
     data: {
-      email: "1323.com",
-      name: "h1i",
+      email: "1341.com",
+      name: "h2311i",
     },
   });
   res.json({ ok: true });

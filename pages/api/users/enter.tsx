@@ -13,7 +13,8 @@ async function handler(
   res: NextApiResponse<ResponseType>
 ) {
   const { email, phone } = req.body;
-  const user = phone ? { phone: +phone } : { email } ? { email } : null;
+  console.log(req.body);
+  const user = phone ? { phone: phone } : { email } ? { email } : null;
   if (!user) return res.status(400).json({ ok: false });
   const payload = Math.floor(100000 + Math.random() * 900000) + ""; // + "" 문자열로 만들어줌
   // const user = await client.user.upsert({

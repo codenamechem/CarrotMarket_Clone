@@ -13,11 +13,23 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
-  phone    Int?     @unique
-  email    String?  @unique
-  name     String
-  avatar   String?
-  createAt DateTime @default(now())
-  updateAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  phone     BigInt?  @unique
+  email     String?  @unique
+  name      String
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tokens    Token[]
 }
+
+model Token {
+  id        Int      @id @default(autoincrement())
+  payload   String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Token과 User를 연결해서 서로의 관계룰 설정해 연동되어 활용가능

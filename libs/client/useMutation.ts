@@ -1,13 +1,13 @@
 import { useState } from "react";
 
-interface UseMutationState {
+interface UseMutationState<T> {
   loading: boolean;
-  data?: object;
+  data?: T;
   error?: object;
 }
-type UseMutationResult = [(data: any) => void, UseMutationState];
+type UseMutationResult<T> = [(data: any) => void, UseMutationState<T>];
 
-export default function useMutation(url: string): UseMutationResult {
+export default function useMutation<T>(url: string): UseMutationResult<T> {
   //   const [loading, setLoading] = useState(false);
   //   const [data, setData] = useState<undefined | any>(undefined);
   //   const [error, setError] = useState<undefined | any>(undefined);
@@ -15,7 +15,7 @@ export default function useMutation(url: string): UseMutationResult {
   //   return [mutation, { loading, data, error }];
   //    useState 하나로 줄여서 쓰기 가능
 
-  const [state, setSate] = useState<UseMutationState>({
+  const [state, setSate] = useState<UseMutationState<T>>({
     loading: false,
     data: undefined,
     error: undefined,

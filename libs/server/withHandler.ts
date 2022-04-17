@@ -1,5 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
+export interface ResponseType {
+  ok: boolean;
+  [Key: string]: any;
+}
 //NextJS에서는 export default를 해주고 function을 return해야함.
 export default function withHandler(
   method: "GET" | "POST" | "DELETE",

@@ -13,7 +13,6 @@ async function handler(
   res: NextApiResponse<ResponseType>
 ) {
   const { email, phone } = req.body;
-  console.log(req.body);
   const user = phone ? { phone: phone } : { email } ? { email } : null;
   if (!user) return res.status(400).json({ ok: false });
   const payload = Math.floor(100000 + Math.random() * 900000) + ""; // + "" 문자열로 만들어줌
@@ -63,4 +62,4 @@ async function handler(
   }
   return res.json({ ok: true });
 }
-export default withHandler({ method: "POST", handler, isPrivate: false });
+export default withHandler({ methods: ["POST"], handler, isPrivate: false });

@@ -26,7 +26,9 @@ const ItemDetail: NextPage = () => {
     router.query.id ? `/api/products/${router.query?.id}` : null
   ); //optional query, mutate로 캐시된 데이터 실시간 변경가능
 
-  const [toggleFav] = useMutation(`/api/products/${router.query?.id}/fav`);
+  const [toggleFav, { loading }] = useMutation(
+    `/api/products/${router.query?.id}/fav`
+  );
   const onFavClick = () => {
     if (!data) return;
     //bound mutation 현재페이지 조작
@@ -35,8 +37,9 @@ const ItemDetail: NextPage = () => {
 
     //unbound mutation 다른페이지 조작가능
     //unBoundMutate("/api/users/me", (prev : any) => prev && { ...prev, ok: !prev.ok }, false);
-
-    toggleFav({});
+    if (!loading) {
+      toggleFav({});
+    }
   };
 
   return (

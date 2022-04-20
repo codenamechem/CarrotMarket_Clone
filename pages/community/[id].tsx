@@ -5,6 +5,10 @@ import { Answer, Post, User } from "@prisma/client";
 import useSWR from "swr";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { cls } from "@libs/client/utils";
+import useMutation from "@libs/client/useMutation";
+import { useEffect } from "react";
 
 interface AnswerWithUser extends Answer {
   user: User;
@@ -20,15 +24,60 @@ interface PostWithUser extends Post {
 interface CommunityPostResponse {
   ok: boolean;
   post: PostWithUser;
+  isWondering: boolean;
+}
+interface AnswerForm {
+  answer: string;
+}
+
+interface AnswerResponse {
+  ok: boolean;
+  response: Answer;
 }
 
 const CommunityPostDetail: NextPage = () => {
   const router = useRouter();
-  const { data, error } = useSWR<CommunityPostResponse>(
-    router.query.id ? `/api/post/${router.query?.id}` : null
+  const { register, handleSubmit, reset } = useForm<AnswerForm>();
+  const { data, mutate } = useSWR<CommunityPostResponse>(
+    router.query.id ? `/api/posts/${router.query?.id}` : null
   );
-  console.log(data);
-
+  const [wonder, { loading }] = useMutation(
+    `/api/posts/${router.query.id}/wonder`
+  );
+  const [sendAnswer, { data: answerData, loading: answerLoading }] =
+    useMutation<AnswerResponse>(`/api/posts/${router.query.id}/answers`);
+  const onWonderClick = () => {
+    if (!data) return;
+    mutate(
+      {
+        ...data, //모든 데이터를 복사함
+        post: {
+          ...data.post,
+          _count: {
+            ...data.post._count,
+            wondering: data.isWondering
+              ? data?.post?._count.wondering - 1
+              : data?.post?._count?.wondering + 1,
+          },
+        },
+        isWondering: !data.isWondering,
+      },
+      false
+    );
+    if (!loading) {
+      wonder({});
+    } //빠륵 계속 클릭시 backend에 중복요청 가지 않게 하기위해 추가
+  };
+  const onValid = (form: AnswerForm) => {
+    if (answerLoading) return;
+    sendAnswer(form);
+  };
+  useEffect(() => {
+    if (answerData && answerData?.ok) {
+      reset();
+      mutate();
+    }
+  }, [answerData, reset, mutate]);
   return (
     <Layout canGoBack>
       <span className="my-3 ml-4 inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
@@ -53,7 +102,13 @@ const CommunityPostDetail: NextPage = () => {
           {!data ? "loading..." : data?.post?.question}
         </div>
         <div className="mt-3 flex w-full space-x-5 border-t border-b-[2px] px-4 py-2.5  text-gray-700">
-          <span className="flex items-center space-x-2 text-sm">
+          <button
+            onClick={onWonderClick}
+            className={cls(
+              "flex items-center space-x-2 text-sm",
+              data?.isWondering ? "text-teal-600" : ""
+            )}
+          >
             <svg
               className="h-4 w-4"
               fill="none"
@@ -68,10 +123,8 @@ const CommunityPostDetail: NextPage = () => {
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
               ></path>
             </svg>
-            <span>
-              궁금해요 {!data ? "loading..." : data?.post._count?.wondering}
-            </span>
-          </span>
+            <span>궁금해요 {data?.post?._count?.wondering}</span>
+          </button>
           <span className="flex items-center space-x-2 text-sm">
             <svg
               className="h-4 w-4"
@@ -87,40 +140,37 @@ const CommunityPostDetail: NextPage = () => {
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               ></path>
             </svg>
-            <span>
-              답변 {!data ? "loading..." : data?.post._count?.answers}
-            </span>
+            <span>답변 {data?.post._count?.answers}</span>
           </span>
         </div>
       </div>
       <div className="my-5 space-y-5 px-4">
-        <div className="flex items-start space-x-3">
-          {data?.post?.answers.map((answer) => (
-            <div key={answer.id} className="flex items-start space-x-3">
-              <div className="h-8 w-8 rounded-full bg-slate-200" />
-              <div>
-                <span className="block text-sm font-medium text-gray-700">
-                  {answer.user.name}
-                </span>
-                <span className="block text-xs text-gray-500 ">
-                  {answer.createdAt}
-                </span>
-                <p className="mt-2 text-gray-700">{answer.answer} </p>
-              </div>
+        {data?.post?.answers.map((answer) => (
+          <div key={answer?.id} className="flex items-start space-x-3">
+            <div className="h-8 w-8 rounded-full bg-slate-200" />
+            <div>
+              <span className="block text-sm font-medium text-gray-700">
+                {answer?.user?.name}
+              </span>
+              <span className="block text-xs text-gray-500 ">
+                {answer?.createdAt}
+              </span>
+              <p className="mt-2 text-gray-700">{answer?.answer} </p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-      <div className="px-4">
+      <form onSubmit={handleSubmit(onValid)} className="px-4">
         <TextArea
-          name="description"
+          register={register("answer", { required: true, minLength: 5 })}
+          name="answer"
           placeholder="Answer this question!"
           required
         />
         <button className="mt-2 w-full rounded-md border border-transparent bg-orange-500 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 ">
-          Reply
+          {answerLoading ? "Loading..." : "Reply"}
         </button>
-      </div>
+      </form>
     </Layout>
   );
 };

@@ -8,20 +8,20 @@ import { useRouter } from "next/router";
 import useMutation from "@libs/client/useMutation";
 import { useEffect } from "react";
 
-interface writeForm {
+interface WriteForm {
   question: string;
 }
 
-interface writeResponse {
+interface WriteResponse {
   ok: boolean;
   post: Post;
 }
 
 const Write: NextPage = () => {
   const router = useRouter();
-  const { register, handleSubmit } = useForm<writeForm>();
-  const [post, { loading, data }] = useMutation<writeResponse>("/api/post");
-  const onValid = (data: writeForm) => {
+  const { register, handleSubmit } = useForm<WriteForm>();
+  const [post, { loading, data }] = useMutation<WriteResponse>("/api/posts");
+  const onValid = (data: WriteForm) => {
     if (loading) return;
     post(data);
   };

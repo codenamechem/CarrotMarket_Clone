@@ -12,22 +12,24 @@ async function handler(
     session: { user },
   } = req;
 
-  const alreadyExits = await client.fav.findFirst({
+  const alreadyExits = await client.record.findFirst({
     where: {
+      kind: "Fav",
       productId: +id.toString(),
       userId: user?.id,
     },
   });
 
   if (alreadyExits) {
-    await client.fav.delete({
+    await client.record.delete({
       where: {
         id: alreadyExits.id,
       },
     });
   } else {
-    await client.fav.create({
+    await client.record.create({
       data: {
+        kind: "Fav",
         user: {
           connect: {
             id: user?.id,

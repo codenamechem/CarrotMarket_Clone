@@ -13,19 +13,23 @@ datasource db {
 }
 
 model User {
-  id         Int         @id @default(autoincrement())
-  phone      String?     @unique
-  email      String?     @unique
-  name       String
-  avatar     String?
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  tokens     Token[]
-  products   Product[]
-  fav        Fav[]
-  posts      Post[]
-  answers    Answer[]
-  wonderings Wondering[]
+  id              Int         @id @default(autoincrement())
+  phone           String?     @unique
+  email           String?     @unique
+  name            String
+  avatar          String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  tokens          Token[]
+  products        Product[]
+  fav             Fav[]
+  posts           Post[]
+  answers         Answer[]
+  wonderings      Wondering[]
+  //두 개의 동일한 모델 간에 두 개의 관계를 정의할 때 @relation 속성에 name 인수를 추가하여 모호성을 제거
+  writtenReviews  Review[]    @relation(name: "writtenReviews")
+  receivedReviews Review[]    @relation(name: "receivedReviews")
+  record          Record[]
 }
 
 model Token {
@@ -50,6 +54,7 @@ model Product {
   price       Int
   description String   @db.MediumText //DB 문자 길이 늘릴수 있음
   favs        Fav[]
+  record      Record[]
 }
 
 model Fav {
@@ -69,6 +74,8 @@ model Post {
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int
   question  String      @db.MediumText
+  latitude  Float?
+  longitude Float?
   answers   Answer[]
   wondering Wondering[]
 }
@@ -92,4 +99,35 @@ model Wondering {
   userId    Int
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    Int
+}
+
+model Review {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  review       String   @db.MediumText
+  //두 개의 동일한 모델 간에 두 개의 관계를 정의할 때 @relation 속성에 name 인수를 추가하여 모호성을 제거
+  createdBy    User     @relation(name: "writtenReviews", fields: [createdById], references: [id], onDelete: Cascade)
+  createdById  Int
+  createdFor   User     @relation(name: "receivedReviews", fields: [createdForId], references: [id], onDelete: Cascade)
+  createdForId Int
+  score        Int      @default(1) // 초기값 지정
+}
+
+model Record {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+  createdAt DateTime @default(now())
+  kind      Kind
+  updatedAt DateTime @updatedAt
+}
+
+// 동일한 모델은 enum 을 사용하여 모델작성
+enum Kind {
+  Purchase
+  Sale
+  Fav
 }

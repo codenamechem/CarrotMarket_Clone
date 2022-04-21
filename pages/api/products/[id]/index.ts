@@ -42,8 +42,9 @@ async function handler(
   });
 
   const isLiked = Boolean(
-    await client.fav.findFirst({
+    await client.record.findFirst({
       where: {
+        kind: "Fav",
         productId: product?.id,
         userId: user?.id,
       },

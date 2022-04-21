@@ -79,7 +79,7 @@ const CommunityPostDetail: NextPage = () => {
     }
   }, [answerData, reset, mutate]);
   return (
-    <Layout canGoBack>
+    <Layout canGoBack hasTabBar>
       <span className="my-3 ml-4 inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
         동네질문
       </span>

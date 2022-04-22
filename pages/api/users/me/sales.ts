@@ -17,7 +17,15 @@ async function handler(
       kind: "Sale",
     },
     include: {
-      product: true,
+      product: {
+        include: {
+          _count: {
+            select: {
+              favs: true,
+            },
+          },
+        },
+      },
     },
   });
   res.json({ ok: true, sales });

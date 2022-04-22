@@ -30,6 +30,8 @@ model User {
   writtenReviews  Review[]    @relation(name: "writtenReviews")
   receivedReviews Review[]    @relation(name: "receivedReviews")
   record          Record[]
+  Sales           Sales[]
+  Purchases       Purchases[]
 }
 
 model Token {
@@ -44,17 +46,19 @@ model Token {
 // Token과 User를 연결해서 서로의 관계룰 설정해 연동되어 활용가능
 
 model Product {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   image       String
   name        String
   price       Int
-  description String   @db.MediumText //DB 문자 길이 늘릴수 있음
+  description String      @db.MediumText //DB 문자 길이 늘릴수 있음
   favs        Fav[]
   record      Record[]
+  Sales       Sales[]
+  Purchases   Purchases[]
 }
 
 model Fav {
@@ -130,4 +134,24 @@ enum Kind {
   Purchase
   Sale
   Fav
+}
+
+model Sales {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
+}
+
+model Purchases {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId Int
 }

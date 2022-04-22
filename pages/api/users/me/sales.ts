@@ -11,10 +11,9 @@ async function handler(
     session: { user },
   } = req;
 
-  const sales = await client.record.findMany({
+  const sales = await client.sales.findMany({
     where: {
       userId: user?.id,
-      kind: "Sale",
     },
     include: {
       product: {

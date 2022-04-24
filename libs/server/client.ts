@@ -4,7 +4,7 @@ declare global {
   var client: PrismaClient | undefined;
 } // global에 client가 없으니 type 정의
 
-const client = global.client || new PrismaClient();
+const client = global.client || new PrismaClient({ log: ["info"] });
 
 if (process.env.NODE_ENV === "development") global.client = client;
 

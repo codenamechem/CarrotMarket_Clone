@@ -22,7 +22,14 @@ const Profile: NextPage = () => {
     <Layout hasTabBar title="나의 캐럿">
       <div className="px-4">
         <div className="mt-4 flex items-center space-x-3">
-          <div className="h-16 w-16 rounded-full bg-slate-500" />
+          {user?.avatar ? (
+            <img
+              src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${user?.avatar}/avatar`}
+              className="h-14 w-14 rounded-full bg-slate-500"
+            />
+          ) : (
+            <div className="h-14 w-14 rounded-full bg-slate-500" />
+          )}
           <div className="flex flex-col">
             <span className="font-medium text-gray-900">{user?.name}</span>
             <Link href={"/profile/edit"}>
@@ -104,7 +111,14 @@ const Profile: NextPage = () => {
         {data?.reviews?.map((review) => (
           <div key={review?.id} className="mt-12">
             <div className="flex items-center space-x-4">
-              <div className="h-12 w-12 rounded-full bg-slate-500" />
+              {user?.avatar ? (
+                <img
+                  src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${user?.avatar}/avatar`}
+                  className="h-12 w-12 rounded-full bg-slate-500"
+                />
+              ) : (
+                <div className="h-12 w-12 rounded-full bg-slate-500" />
+              )}
               <div>
                 <h4 className="text-sm font-bold text-gray-800">
                   {review?.createdBy?.name}

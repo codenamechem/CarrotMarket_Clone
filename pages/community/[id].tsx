@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { cls } from "@libs/client/utils";
 import useMutation from "@libs/client/useMutation";
 import { useEffect } from "react";
+import useUser from "@libs/client/useUser";
 
 interface AnswerWithUser extends Answer {
   user: User;
@@ -37,6 +38,7 @@ interface AnswerResponse {
 
 const CommunityPostDetail: NextPage = () => {
   const router = useRouter();
+  const { user } = useUser();
   const { register, handleSubmit, reset } = useForm<AnswerForm>();
   const { data, mutate } = useSWR<CommunityPostResponse>(
     router.query.id ? `/api/posts/${router.query?.id}` : null
@@ -84,7 +86,14 @@ const CommunityPostDetail: NextPage = () => {
         동네질문
       </span>
       <div className="mb-3 flex cursor-pointer items-center space-x-3  border-b px-4 pb-3">
-        <div className="h-10 w-10 rounded-full bg-slate-300" />
+        {user?.avatar ? (
+          <img
+            src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${user?.avatar}/avatar`}
+            className="h-10 w-10 rounded-full bg-slate-500"
+          />
+        ) : (
+          <div className="h-10 w-10 rounded-full bg-slate-500" />
+        )}
         <div>
           <p className="text-sm font-medium text-gray-700">
             {!data ? "loading..." : data?.post?.user?.name}

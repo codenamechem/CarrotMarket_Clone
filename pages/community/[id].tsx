@@ -88,7 +88,7 @@ const CommunityPostDetail: NextPage = () => {
       <div className="mb-3 flex cursor-pointer items-center space-x-3  border-b px-4 pb-3">
         {user?.avatar ? (
           <img
-            src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${user?.avatar}`}
+            src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${user?.avatar}/public`}
             className="h-10 w-10 rounded-full bg-slate-500"
           />
         ) : (

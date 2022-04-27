@@ -9,6 +9,7 @@ import useMutation from "@libs/client/useMutation";
 import { cls } from "@libs/client/utils";
 import { userInfo } from "os";
 import useUser from "@libs/client/useUser";
+import Image from "next/image";
 
 interface ProductWithUser extends Product {
   user: User;
@@ -50,17 +51,23 @@ const ItemDetail: NextPage = () => {
       <div className="px-4 py-4">
         <div className="mb-8">
           {data ? (
-            <img
+            <Image
               src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${data?.product?.image}/public`}
-              className="block h-96 bg-slate-300"
-            />
+              width={400}
+              height={400}
+              layout="responsive"
+              alt="123"
+              // placeholder="blur"
+              // blurDataURL="https://i.ibb.co/ByhpsFY/blur.png"
+            /> //NextJS image
           ) : (
-            <img className="block h-96 bg-slate-300" />
+            <img className=" h-96 bg-slate-300" />
           )}
-          <div className="flex cursor-pointer items-center space-x-3 border-t border-b py-3">
+
+          <div className="mt-3 flex cursor-pointer items-center space-x-3 border-t border-b py-3">
             {user?.avatar ? (
               <img
-                src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${user?.avatar}/avatar`}
+                src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${user?.avatar}/public`}
                 className="h-12 w-12 rounded-full bg-slate-500"
               />
             ) : (

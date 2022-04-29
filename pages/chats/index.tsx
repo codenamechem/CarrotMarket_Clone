@@ -5,7 +5,7 @@ import Layout from "@components/layout";
 const Chats: NextPage = () => {
   return (
     //divide 마지막 선 안보이게
-    <Layout title="채팅" hasTabBar>
+    <Layout title="채팅" hasTabBar seoTitle="chat">
       <div className="divide-y-[1px]">
         {[1, 1, 1, 1, 1, 1, 1].map((_, i) => (
           <Link href={`/chats/${i}`} key={i}>

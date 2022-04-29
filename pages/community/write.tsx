@@ -20,12 +20,12 @@ interface WriteResponse {
 
 const Write: NextPage = () => {
   const router = useRouter();
-  const {latitude, longitude} = useCoords();
+  const { latitude, longitude } = useCoords();
   const { register, handleSubmit } = useForm<WriteForm>();
   const [post, { loading, data }] = useMutation<WriteResponse>("/api/posts");
   const onValid = (data: WriteForm) => {
     if (loading) return;
-    post({...data, latitude,longitude });
+    post({ ...data, latitude, longitude });
   };
   useEffect(() => {
     if (data && data.ok) {
@@ -34,7 +34,7 @@ const Write: NextPage = () => {
   }, [data, router]);
 
   return (
-    <Layout canGoBack title="Write Post">
+    <Layout canGoBack title="Write Post" seoTitle="Write Post">
       <form onSubmit={handleSubmit(onValid)} className="space-y-4 px-4">
         <TextArea
           register={register("question", { required: true, minLength: 5 })}

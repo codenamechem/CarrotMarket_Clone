@@ -37,4 +37,8 @@ front : npm run dev
 pscale : pscale connect carrotmarket_clone
 prisma : npx prisma studio
 
+seed : npx prisma db seed
+
 database change : npx prisma db push
+
+https://github.com/helious23/max-market

@@ -76,7 +76,7 @@ const Streams: NextPage = () => {
     }
   }, [sendMessageData, mutate]); */
   return (
-    <Layout canGoBack>
+    <Layout canGoBack seoTitle="Stream">
       <div className="space-y-4 py-10  px-4">
         <div className="aspect-video w-full rounded-md bg-slate-300 shadow-sm" />
         <div className="mt-5">

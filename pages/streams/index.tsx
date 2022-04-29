@@ -1,31 +1,53 @@
 /* eslint-disable @next/next/link-passhref */
-import type { NextPage } from "next";
+import type { GetServerSideProps, GetStaticProps, NextPage } from "next";
 import Link from "next/link";
 import FloatingButton from "@components/floating-button";
 import Layout from "@components/layout";
 import { Stream } from "@prisma/client";
-import useSWR from "swr";
+import { SWRConfig } from "swr";
+import { useInfiniteScroll } from "@libs/client/useInfiniteScroll";
+import { useEffect } from "react";
+import useSWRInfinite, { unstable_serialize } from "swr/infinite";
+import client from "@libs/server/client";
+import streams from "pages/api/streams";
 
 interface StreamsResponse {
   ok: boolean;
   streams: Stream[];
+  pages: number;
 }
 
+const getKey = (pageIndex: number, previousPageData: StreamsResponse) => {
+  if (previousPageData && !previousPageData.streams.length) return null;
+  return `/api/streams?page=${pageIndex + 1}`;
+};
+
 const Streams: NextPage = () => {
-  const { data } = useSWR<StreamsResponse>("/api/streams");
+  //const { data } = useSWR<StreamsResponse>("/api/streams");
+
+  const { data, setSize } = useSWRInfinite<StreamsResponse>(getKey);
+
+  const page = useInfiniteScroll();
+
+  useEffect(() => {
+    setSize(page);
+  }, [setSize, page]);
+
   return (
-    <Layout hasTabBar title="라이브">
+    <Layout hasTabBar title="라이브" seoTitle="Stream">
       <div className="space-y-4 divide-y-[1px]">
-        {data?.streams?.map((stream) => (
-          <Link key={stream?.id} href={`/streams/${stream?.id}`}>
-            <a className="block  cursor-pointer px-4 pt-4">
-              <div className="aspect-video w-full rounded-md bg-slate-300 shadow-sm" />
-              <h1 className="mt-2 text-2xl font-bold text-gray-900">
-                {stream.name}
-              </h1>
-            </a>
-          </Link>
-        ))}
+        {data?.map((result) => {
+          return result?.streams?.map((stream) => (
+            <Link key={stream?.id} href={`/streams/${stream?.id}`}>
+              <a className="block  cursor-pointer px-4 pt-4">
+                <div className="aspect-video w-full rounded-md bg-slate-300 shadow-sm" />
+                <h1 className="mt-2 text-2xl font-bold text-gray-900">
+                  {stream.name}
+                </h1>
+              </a>
+            </Link>
+          ));
+        })}
         <FloatingButton href="/streams/create">
           <svg
             className="h-6 w-6"
@@ -46,4 +68,43 @@ const Streams: NextPage = () => {
     </Layout>
   );
 };
-export default Streams;
+
+const Page: NextPage<StreamsResponse> = ({ streams, pages }) => {
+  return (
+    <SWRConfig
+      value={{
+        fallback: {
+          [unstable_serialize(getKey)]: [
+            {
+              ok: true,
+              streams,
+              pages,
+            },
+          ],
+        },
+      }}
+    >
+      <Streams />
+    </SWRConfig>
+  );
+};
+
+export async function getServerSideProps() {
+  const streams = await client.stream.findMany({
+    take: 10,
+    skip: 0,
+  });
+  const streamsCount = await client.product.count();
+
+  if (!streams) return { props: {} };
+
+  return {
+    props: {
+      ok: true,
+      products: JSON.parse(JSON.stringify(streams)),
+      pages: Math.ceil(streamsCount / 10),
+    },
+  };
+}
+
+export default Page;

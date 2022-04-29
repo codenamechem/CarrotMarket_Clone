@@ -7,6 +7,22 @@ import useMutation from "@libs/client/useMutation";
 import { cls } from "@libs/client/utils";
 import { useRouter } from "next/router";
 
+/* import dynamic from "next/dynamic";
+
+const Bs = dynamic(() =>
+    new Promise((resolve) =>
+      setTimeout(() => resolve(import("@components/bs")), 10000)
+    ),
+  { ssr: false, suspense: true, loading: () => <span>loading</span> });
+  dynamic을 이용하여 component가 필요할시에만 로당되게 만들 수 있음. 
+  또한 suspense를 사용 할 수 있고 loading을 사용해도 됨
+
+  <Suspense fallback={<button>loading!!</button>}>
+    <Bs />
+  </Suspense>
+
+  */
+
 interface TokenForm {
   token: string;
 }

@@ -1,10 +1,11 @@
-import type { NextPage } from "next";
+import type { GetStaticProps, NextPage } from "next";
 import Link from "next/link";
 import FloatingButton from "@components/floating-button";
 import Layout from "@components/layout";
 import { Post, User } from "@prisma/client";
 import useSWR from "swr";
 import useCoords from "@libs/client/useCoords";
+import client from "@libs/server/client";
 
 interface PostWithUser extends Post {
   user: User;
@@ -19,18 +20,19 @@ interface PostsResponse {
   posts: PostWithUser[];
 }
 
-const Community: NextPage = () => {
-  const { latitude, longitude } = useCoords();
+const Community: NextPage<PostsResponse> = ({ posts }) => {
+  /* const { latitude, longitude } = useCoords();
   const { data } = useSWR<PostsResponse>(
     latitude && longitude
       ? `/api/posts?latitude=${latitude}&longitude=${longitude}`
       : `/api/posts`
-  );
+  ); */
+  console.log(posts);
 
   return (
     <Layout hasTabBar title="동네생활" seoTitle="동네생활">
       <div className="space-y-4 divide-y-[2px] px-4">
-        {data?.posts?.map((post) => (
+        {posts?.map((post) => (
           <Link href={`/community/${post?.id}`} key={post?.id}>
             <a className="flex cursor-pointer flex-col items-start pt-4">
               <span className="ml-4 flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
@@ -102,6 +104,22 @@ const Community: NextPage = () => {
       </div>
     </Layout>
   );
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+  const posts = await client.post.findMany({
+    include: {
+      user: true,
+    },
+  });
+  return {
+    props: {
+      posts: JSON.parse(JSON.stringify(posts)),
+    },
+    revalidate: 10,
+    //INCREMENTAL SITE REGENERATION
+    //ISR revalidate만 넣어주면 주기적으로 getStaticProps 실행
+  };
 };
 
 export default Community;

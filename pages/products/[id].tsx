@@ -1,15 +1,15 @@
-import type { NextPage } from "next";
+import type { GetStaticPaths, GetStaticProps, NextPage } from "next";
 import Button from "@components/button";
 import Layout from "@components/layout";
 import { useRouter } from "next/router";
-import useSWR, { useSWRConfig } from "swr";
+import useSWR from "swr";
 import Link from "next/link";
 import { Product, User } from "@prisma/client";
 import useMutation from "@libs/client/useMutation";
 import { cls } from "@libs/client/utils";
-import { userInfo } from "os";
 import useUser from "@libs/client/useUser";
 import Image from "next/image";
+import client from "@libs/server/client";
 
 interface ProductWithUser extends Product {
   user: User;
@@ -22,7 +22,11 @@ interface ItemDetailResponse {
   isLiked: boolean;
 }
 
-const ItemDetail: NextPage = () => {
+const ItemDetail: NextPage<ItemDetailResponse> = ({
+  product,
+  relatedProducts,
+  isLiked,
+}) => {
   const { user } = useUser();
   const router = useRouter(); //using router current page check
   //const { mutate: unBoundMutate } = useSWRConfig();
@@ -46,38 +50,37 @@ const ItemDetail: NextPage = () => {
     }
   };
 
-  return (
-    <Layout canGoBack seoTitle="Product">
-      <div className="px-4 py-4">
-        <div className="mb-8">
-          {data ? (
-            <Image
-              src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${data?.product?.image}/public`}
-              width={400}
-              height={400}
-              layout="responsive"
-              alt="123"
-              // placeholder="blur"
-              // blurDataURL="https://i.ibb.co/ByhpsFY/blur.png"
-            /> //NextJS image
-          ) : (
-            <img className=" h-96 bg-slate-300" />
-          )}
+  if (router.isFallback) {
+    return (
+      <Layout title="Loaidng for youuuuuuu " seoTitle="waiting!">
+        <span>I love you</span>
+      </Layout>
+    );
+  }
 
-          <div className="mt-3 flex cursor-pointer items-center space-x-3 border-t border-b py-3">
-            {user?.avatar ? (
-              <img
-                src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${user?.avatar}/public`}
-                className="h-12 w-12 rounded-full bg-slate-500"
-              />
-            ) : (
-              <div className="h-12 w-12 rounded-full bg-slate-500" />
-            )}
+  return (
+    <Layout canGoBack seoTitle="Product Detail">
+      <div className="px-4  py-4">
+        <div className="mb-8">
+          <div className="relative  pb-80">
+            <Image
+              src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${product.image}/public`}
+              className="bg-slate-300 object-cover"
+              layout="fill"
+            />
+          </div>
+          <div className="flex cursor-pointer items-center space-x-3 border-t border-b py-3">
+            <Image
+              width={48}
+              height={48}
+              src={`https://imagedelivery.net/Bma56yIYvBq6NVuYHYW1Vw/${product?.user?.avatar}/avatar`}
+              className="h-12 w-12 rounded-full bg-slate-300"
+            />
             <div>
               <p className="text-sm font-medium text-gray-700">
-                {!data ? "loading..." : data?.product?.user?.name}
+                {product?.user?.name}
               </p>
-              <Link href={`/profile/${data?.product?.user?.id}`}>
+              <Link href={`/users/profiles/${product?.user?.id}`}>
                 <a className="text-xs font-medium text-gray-500">
                   View profile &rarr;
                 </a>
@@ -86,26 +89,24 @@ const ItemDetail: NextPage = () => {
           </div>
           <div className="mt-5">
             <h1 className="text-3xl font-bold text-gray-900">
-              {!data ? "loading..." : data?.product?.name}
+              {product?.name}
             </h1>
-            <span className=" mt-3 block text-2xl text-gray-700">
-              {!data ? "loading..." : data?.product?.price}
+            <span className="mt-3 block text-2xl text-gray-900">
+              ${product?.price}
             </span>
-            <p className="my-6 text-base text-gray-600">
-              {!data ? "loading..." : data?.product?.description}
-            </p>
+            <p className=" my-6 text-gray-700">{product?.description}</p>
             <div className="flex items-center justify-between space-x-2">
               <Button large text="Talk to seller" />
               <button
                 onClick={onFavClick}
                 className={cls(
                   "flex items-center justify-center rounded-md p-3 hover:bg-gray-100 ",
-                  data?.isLiked
+                  isLiked
                     ? "text-red-500  hover:text-red-600"
                     : "text-gray-400  hover:text-gray-500"
                 )}
               >
-                {data?.isLiked ? (
+                {isLiked ? (
                   <svg
                     className="h-6 w-6"
                     fill="currentColor"
@@ -141,18 +142,14 @@ const ItemDetail: NextPage = () => {
         </div>
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Similar items</h2>
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            {data?.relatedProducts.map((product) => (
-              <div key={product?.id}>
-                <Link href={`/products/${product?.id}`}>
-                  <a>
-                    <div className="mb-4 h-56 w-full bg-slate-300" />
-                    <h3 className="-mb-1 text-gray-700">{product?.name}</h3>
-                    <span className="text-sm font-medium text-gray-900">
-                      {product?.price}
-                    </span>
-                  </a>
-                </Link>
+          <div className=" mt-6 grid grid-cols-2 gap-4">
+            {relatedProducts?.map((product) => (
+              <div key={product.id}>
+                <div className="mb-4 h-56 w-full bg-slate-300" />
+                <h3 className="-mb-1 text-gray-700">{product.name}</h3>
+                <span className="text-sm font-medium text-gray-900">
+                  ${product.price}
+                </span>
               </div>
             ))}
           </div>
@@ -160,6 +157,59 @@ const ItemDetail: NextPage = () => {
       </div>
     </Layout>
   );
+};
+
+export const getStaticPaths: GetStaticPaths = () => {
+  return {
+    paths: [],
+    fallback: true, // "blocking" 첫번째 방문에만 페이지 생성하고 다음에는 생성한 HTML 바로 보여줌
+  }; // true blocking은 생성중 아무것도 안보여주지만 true는 router.isfallback 으로 화면 보여줌
+};
+
+export const getStaticProps: GetStaticProps = async (ctx) => {
+  if (!ctx?.params?.id) {
+    return {
+      props: {},
+    };
+  }
+  const product = await client.product.findUnique({
+    where: {
+      id: +ctx.params.id.toString(),
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          avatar: true,
+        },
+      },
+    },
+  });
+  const terms = product?.name.split(" ").map((word) => ({
+    name: {
+      contains: word,
+    },
+  }));
+  const relatedProducts = await client.product.findMany({
+    where: {
+      OR: terms,
+      AND: {
+        id: {
+          not: product?.id,
+        },
+      },
+    },
+  });
+  const isLiked = false;
+  await new Promise((resolve) => setTimeout(resolve, 10000));
+  return {
+    props: {
+      product: JSON.parse(JSON.stringify(product)),
+      relatedProducts: JSON.parse(JSON.stringify(relatedProducts)),
+      isLiked,
+    },
+  };
 };
 
 export default ItemDetail;

@@ -22,6 +22,8 @@ async function handler(
       },
     });
 
+    //await res.unstable_revalidate("/community"); //페이지를 새로고침 요청!
+
     res.json({ ok: true, post });
   }
 

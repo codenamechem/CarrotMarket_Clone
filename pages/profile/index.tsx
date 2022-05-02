@@ -169,7 +169,8 @@ const Page: NextPage<{ profile: User }> = ({ profile }) => {
     </SWRConfig>
   );
 };
-// sersideprops에 세션을 담아서 활용가능
+
+// serverSideProps에 세션을 담아서 활용가능
 export const getServerSideProps = withSsrSession(async function ({
   req,
 }: NextPageContext) {

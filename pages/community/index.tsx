@@ -27,12 +27,11 @@ const Community: NextPage<PostsResponse> = ({ posts }) => {
       ? `/api/posts?latitude=${latitude}&longitude=${longitude}`
       : `/api/posts`
   ); */
-  console.log(posts);
 
   return (
     <Layout hasTabBar title="동네생활" seoTitle="동네생활">
       <div className="space-y-4 divide-y-[2px] px-4">
-        {posts?.map((post) => (
+        {posts?.reverse().map((post) => (
           <Link href={`/community/${post?.id}`} key={post?.id}>
             <a className="flex cursor-pointer flex-col items-start pt-4">
               <span className="ml-4 flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">

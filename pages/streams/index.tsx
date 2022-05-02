@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/link-passhref */
-import type { GetServerSideProps, GetStaticProps, NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
 import FloatingButton from "@components/floating-button";
 import Layout from "@components/layout";
@@ -89,22 +89,22 @@ const Page: NextPage<StreamsResponse> = ({ streams, pages }) => {
   );
 };
 
-export async function getServerSideProps() {
+export const getServerSideProps: GetServerSideProps = async () => {
   const streams = await client.stream.findMany({
     take: 10,
     skip: 0,
   });
-  const streamsCount = await client.product.count();
-
   if (!streams) return { props: {} };
+
+  const streamsCount = await client.stream.count();
 
   return {
     props: {
       ok: true,
-      products: JSON.parse(JSON.stringify(streams)),
+      streams: JSON.parse(JSON.stringify(streams)),
       pages: Math.ceil(streamsCount / 10),
     },
   };
-}
+};
 
 export default Page;
